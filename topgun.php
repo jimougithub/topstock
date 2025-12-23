@@ -109,6 +109,24 @@ if (($handle = fopen($csvFile, "r")) !== false) {
         th {
             background-color: #f2f2f2;
         }
+        /* Collapse/expand controls */
+        h1.toggle {
+            cursor: pointer;
+            user-select: none;
+        }
+        h1.toggle .indicator {
+            display: inline-block;
+            width: 1.2em;
+            text-align: center;
+            margin-right: 0.5em;
+            font-weight: bold;
+        }
+        table.collapsible {
+            transition: all 0.15s ease;
+        }
+        table.collapsible.hidden {
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -211,5 +229,26 @@ if (($handle = fopen($csvFile, "r")) !== false) {
             <?php endforeach; ?>
         </tbody>
     </table>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('h1').forEach(function (h) {
+                var tbl = h.nextElementSibling;
+                if (!tbl || tbl.tagName.toLowerCase() !== 'table') return;
+                h.classList.add('toggle');
+                var ind = document.createElement('span');
+                ind.className = 'indicator';
+                ind.textContent = '[+]';
+                h.insertBefore(ind, h.firstChild);
+                tbl.classList.add('collapsible', 'hidden');
+                h.setAttribute('aria-expanded', 'false');
+                h.addEventListener('click', function () {
+                    var isHidden = tbl.classList.toggle('hidden');
+                    h.setAttribute('aria-expanded', String(!isHidden));
+                    ind.textContent = isHidden ? '[+]' : '[-]';
+                });
+            });
+        });
+    </script>
 </body>
 </html>

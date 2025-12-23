@@ -15,6 +15,8 @@ pyautogui.PAUSE = 0.5
 
 def export_dzh_5minute_data():    
     # 1. 按键盘快捷键打开5分钟数据K线图
+    pyautogui.moveTo(200, 200)  # 先移动到(100, 200)
+    pyautogui.click(button='left')
     pyautogui.hotkey('ctrl', '5')  # 假设 Ctrl + 5 是打开5分钟K线图的快捷键
     time.sleep(0.5)  # 等待K线图加载完成
     pyautogui.press('down', presses=16)  # 假设按16次下键可拿到最多的数据
