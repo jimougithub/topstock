@@ -86,7 +86,7 @@ function createStockLink($code) {
             $prefix = "sz";
     }
 
-    return "<a href='https://quote.eastmoney.com/" . $prefix . $code . "' target='_blank'>" . $code . "</a>";
+    return "<a href='https://quote.eastmoney.com/" . $prefix . $code . ".html' target='_blank'>" . $code . "</a>";
 }
 
 // Display the data in an HTML table
