@@ -9,83 +9,84 @@ if ($update=="yes"){
     }
 }
 
-$csvFile = "./results/data1.csv";
-if (!file_exists($csvFile)) {
-    echo "<p>Error: "+ $csvFile +" file not found.</p>";
-    exit;
-}
-$data1 = [];
-if (($handle = fopen($csvFile, "r")) !== false) {
-    $header1 = fgetcsv($handle);
-    while (($row = fgetcsv($handle)) !== false) {
-        $data1[] = $row;
+// Define H1 titles
+$H1Array = [
+    1 => 'Data 1 - 只保留涨幅在 3% 到 5% 之间的股票',
+    2 => 'Data 2 - 剔除量比少于 1 的股票',
+    3 => 'Data 3 - 剔除换手率低于 5% 或者高于 10% 的股票',
+    4 => 'Data 4 - 剔除流通市值小于 50 亿或者高于 200 亿的股票',
+    5 => 'Data 5 - 股价必须在全天的均价上方运行'
+];
+
+// Read CSV files into arrays
+$dataFiles = [
+    1 => "./results/data1.csv",
+    2 => "./results/data2.csv",
+    3 => "./results/data3.csv",
+    4 => "./results/data4.csv",
+    5 => "./results/data5.csv"
+];
+
+// Load each CSV file into corresponding arrays
+$headers = [];
+$updateTimes = [];
+$dataArrays = [];
+for ($i = 1; $i <= count($dataFiles); $i++) {
+    // check if file exists
+    $csvFile = $dataFiles[$i];
+    if (!file_exists($csvFile)) {
+        echo "<p>Error: " . $csvFile . " file not found.</p>";
+        exit;
     }
-    fclose($handle);
-} else {
-    echo "<p>Error: Unable to open the "+ $csvFile +" file.</p>";
+    
+    // check the update time of the file
+    $updateTimes[$i] = date("Y-m-d H:i:s", filemtime($csvFile));
+
+    // Read CSV data
+    $dataArrays[$i] = [];
+    if (($handle = fopen($csvFile, "r")) !== false) {
+        $headers[$i] = fgetcsv($handle);
+        while (($row = fgetcsv($handle)) !== false) {
+            // Add link to stock code
+            $row[1] = createStockLink(htmlspecialchars($row[1]));
+            $dataArrays[$i][] = $row;
+        }
+        fclose($handle);
+    } else {
+        echo "<p>Error: Unable to open the " . $csvFile . " file.</p>";
+    }
 }
 
-$csvFile = "./results/data2.csv";
-if (!file_exists($csvFile)) {
-    echo "<p>Error: "+ $csvFile +" file not found.</p>";
-    exit;
-}
-$data2 = [];
-if (($handle = fopen($csvFile, "r")) !== false) {
-    $header2 = fgetcsv($handle);
-    while (($row = fgetcsv($handle)) !== false) {
-        $data2[] = $row;
+// function to create link for stock code
+function createStockLink($code) {
+    $prefix = "sz";
+    switch (substr($code, 0, 2)) {
+        case "60":
+            $prefix = "sh";
+            break;
+        case "90":
+            $prefix = "sh";
+            break;
+        case "68":
+            $prefix = "kcb/";
+            break;
+        case "00":
+            $prefix = "sz";
+            break;
+        case "20":
+            $prefix = "sz";
+            break;
+        case "30":
+            $prefix = "sz";
+            break;
+        case "92":
+            $prefix = "bj/";
+            break;
+        default:
+            $prefix = "sz";
     }
-    fclose($handle);
-} else {
-    echo "<p>Error: Unable to open the "+ $csvFile +" file.</p>";
-}
 
-$csvFile = "./results/data3.csv";
-if (!file_exists($csvFile)) {
-    echo "<p>Error: "+ $csvFile +" file not found.</p>";
-    exit;
-}
-$data3 = [];
-if (($handle = fopen($csvFile, "r")) !== false) {
-    $header3 = fgetcsv($handle);
-    while (($row = fgetcsv($handle)) !== false) {
-        $data3[] = $row;
-    }
-    fclose($handle);
-} else {
-    echo "<p>Error: Unable to open the "+ $csvFile +" file.</p>";
-}
-
-$csvFile = "./results/data4.csv";
-if (!file_exists($csvFile)) {
-    echo "<p>Error: "+ $csvFile +" file not found.</p>";
-    exit;
-}
-$data4 = [];
-if (($handle = fopen($csvFile, "r")) !== false) {
-    $header4 = fgetcsv($handle);
-    while (($row = fgetcsv($handle)) !== false) {
-        $data4[] = $row;
-    }
-    fclose($handle);
-} else {
-    echo "<p>Error: Unable to open the "+ $csvFile +" file.</p>";
-}
-
-$csvFile = "./results/data5.csv";
-if (!file_exists($csvFile)) {
-    echo "<p>Error: "+ $csvFile +" file not found.</p>";
-}
-$data5 = [];
-if (($handle = fopen($csvFile, "r")) !== false) {
-    $header5 = fgetcsv($handle);
-    while (($row = fgetcsv($handle)) !== false) {
-        $data5[] = $row;
-    }
-    fclose($handle);
-} else {
-    echo "<p>Error: Unable to open the "+ $csvFile +" file.</p>";
+    return "<a href='https://quote.eastmoney.com/" . $prefix . $code . "' target='_blank'>" . $code . "</a>";
 }
 
 // Display the data in an HTML table
@@ -130,105 +131,25 @@ if (($handle = fopen($csvFile, "r")) !== false) {
     </style>
 </head>
 <body>
-    <h1>Data 1 - 只保留涨幅在 3% 到 5% 之间的股票</h1>
-    <table>
-        <thead>
-            <tr>
-                <?php foreach ($header1 as $column): ?>
-                    <th><?php echo htmlspecialchars($column); ?></th>
-                <?php endforeach; ?>
-            </tr>
-        </thead>
-        <tbody>
-            <?php foreach ($data1 as $row): ?>
-                <tr>
-                    <?php foreach ($row as $cell): ?>
-                        <td><?php echo htmlspecialchars($cell); ?></td>
-                    <?php endforeach; ?>
-                </tr>
-            <?php endforeach; ?>
-        </tbody>
-    </table>
-
-    <h1>Data 2 - 剔除量比少于 1 的股票</h1>
-    <table>
-        <thead>
-            <tr>
-                <?php foreach ($header2 as $column): ?>
-                    <th><?php echo htmlspecialchars($column); ?></th>
-                <?php endforeach; ?>
-            </tr>
-        </thead>
-        <tbody>
-            <?php foreach ($data2 as $row): ?>
-                <tr>
-                    <?php foreach ($row as $cell): ?>
-                        <td><?php echo htmlspecialchars($cell); ?></td>
-                    <?php endforeach; ?>
-                </tr>
-            <?php endforeach; ?>
-        </tbody>
-    </table>
-
-    <h1>Data 3 - 剔除换手率低于 5% 或者高于 10% 的股票</h1>
-    <table>
-        <thead>
-            <tr>
-                <?php foreach ($header3 as $column): ?>
-                    <th><?php echo htmlspecialchars($column); ?></th>
-                <?php endforeach; ?>
-            </tr>
-        </thead>
-        <tbody>
-            <?php foreach ($data3 as $row): ?>
-                <tr>
-                    <?php foreach ($row as $cell): ?>
-                        <td><?php echo htmlspecialchars($cell); ?></td>
-                    <?php endforeach; ?>
-                </tr>
-            <?php endforeach; ?>
-        </tbody>
-    </table>
-
-    <h1>Data 4 - 剔除流通市值小于 50 亿或者高于 200 亿的股票</h1>
-    <table>
-        <thead>
-            <tr>
-                <?php foreach ($header4 as $column): ?>
-                    <th><?php echo htmlspecialchars($column); ?></th>
-                <?php endforeach; ?>
-            </tr>
-        </thead>
-        <tbody>
-            <?php foreach ($data4 as $row): ?>
-                <tr>
-                    <?php foreach ($row as $cell): ?>
-                        <td><?php echo htmlspecialchars($cell); ?></td>
-                    <?php endforeach; ?>
-                </tr>
-            <?php endforeach; ?>
-        </tbody>
-    </table>
-
-    <h1>Data 5 - 股价必须在全天的均价上方运行</h1>
-    <table>
-        <thead>
-            <tr>
-                <?php foreach ($header5 as $column): ?>
-                    <th><?php echo htmlspecialchars($column); ?></th>
-                <?php endforeach; ?>
-            </tr>
-        </thead>
-        <tbody>
-            <?php foreach ($data5 as $row): ?>
-                <tr>
-                    <?php foreach ($row as $cell): ?>
-                        <td><?php echo htmlspecialchars($cell); ?></td>
-                    <?php endforeach; ?>
-                </tr>
-            <?php endforeach; ?>
-        </tbody>
-    </table>
+    <?php
+    for ($i = 1; $i <= count($headers); $i++) {
+        echo "<h1>" . htmlspecialchars($H1Array[$i]) . " (" . $updateTimes[$i] . ")</h1>";
+        echo "<table>";
+        echo "<thead><tr>";
+        foreach ($headers[$i] as $column) {
+            echo "<th>" . htmlspecialchars($column) . "</th>";
+        }
+        echo "</tr></thead><tbody>";
+        foreach ($dataArrays[$i] as $row) {
+            echo "<tr>";
+            foreach ($row as $cell) {
+                echo "<td>" . htmlspecialchars($cell) . "</td>";
+            }
+            echo "</tr>";
+        }
+        echo "</tbody></table>";
+    }
+    ?>
     
     <script>
         document.addEventListener('DOMContentLoaded', function () {

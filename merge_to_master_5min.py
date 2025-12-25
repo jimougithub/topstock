@@ -1,6 +1,5 @@
 import os
 import pandas as pd
-import akshare as ak
 import stock_utlities as su
 
 # 获取python程序当前路径
