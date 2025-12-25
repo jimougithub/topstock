@@ -66,6 +66,14 @@ def always_above_daily_avg_price(stock_code):
                 return False
     return True
 
+# 根据股票代码补充前缀
+def format_sina_stock_code(stock_code):
+    if stock_code.startswith('6'):
+        return 'sh' + stock_code
+    elif stock_code.startswith('9'):
+        return 'bj' + stock_code
+    else:
+        return 'sz' + stock_code
 
 '''
 # for testing

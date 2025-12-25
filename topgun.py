@@ -1,7 +1,7 @@
 import akshare as ak
 import stock_utlities as su
 
-# 获取python程序当前路径
+# 数据所在路径
 current_path = su.get_current_path() + "/results"
 
 # 获取沪深京A股实时行情数据，返回涨幅排名前100的股票

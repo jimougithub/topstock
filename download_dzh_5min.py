@@ -71,18 +71,21 @@ def export_dzh_5minute_data():
 # 注意：这里假设大智慧窗口已经打开且位置固定。
 # 更稳妥的做法是使用图像识别定位窗口，例如使用 pyautogui.locateOnScreen('dzh_window_icon.png') 找到窗口并点击激活
 print("请确保大智慧软件窗口处于活动状态...")
+print("请确保大智慧软件设置了后复权...")
 time.sleep(2)  # 给予用户切换窗口的时间
 
 prev_stock_code = ""
 new_stock_code = ""
 for i in range(1, 8000):
     new_stock_code = export_dzh_5minute_data()
-    if new_stock_code == prev_stock_code or new_stock_code == "600000":
+    if new_stock_code == prev_stock_code or (new_stock_code == "600000" and prev_stock_code != ""):
         print("all stock extracted")
         break
     else:
         prev_stock_code = new_stock_code
 
     # 鼠标滚轮向下滚动以切换到下一个股票
+    pyautogui.moveTo(200, 200)  # 先移动到(100, 200)
+    pyautogui.click(button='left')
     pyautogui.scroll(-500)  # 向下滚动鼠标滚轮
     time.sleep(0.5)  # 等待界面刷新

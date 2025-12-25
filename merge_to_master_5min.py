@@ -2,60 +2,59 @@ import os
 import pandas as pd
 import stock_utlities as su
 
-# 获取python程序当前路径
+# path to the data
 current_path = su.get_current_path() + "/data"
 
-# 获取所有股票代码
-def get_all_stock_codes():
-    # 检查 all_stock_codes.csv 是否存在
-    if os.path.exists(current_path+"/all_stock_codes.csv"):
-        print("all_stock_codes.csv already exists.")
-        return
-
-    # 获取所有股票代码
-    # code, name
-    stock_info = ak.stock_info_a_code_name()
-    print(f"Total stock codes: {len(stock_info)}")
-
-    # 添加一个新列 'download'，初始值为 N
-    stock_info['download'] = 'N'
-
-    # 保持到csv文件
-    stock_info.to_csv(current_path+"/all_stock_codes.csv", index=False, encoding="utf-8-sig")
-
-# 获取股票分钟级数据并保存到 csv 文件
-def get_stock_minute_data(stock_code):
-    try:
-        minute_data = ak.stock_zh_a_hist_min_em(
-            symbol=stock_code, 
-            #start_date="2024-01-01 09:30:00", 
-            #end_date="2025-11-14 15:00:00", 
-            period="5", 
-            adjust=""
-        )
-        minute_data.to_csv(current_path+f"/5min_today/{stock_code}_5min_today.csv", index=False, encoding="utf-8-sig")
-        # print(f"Downloaded data for {stock_code}")
-    except Exception as e:
-        print(f"Error downloading data for {stock_code}: {e}")
+# merge today's 5min data into master file
+def merge_today_5min_into_master(stock_code):
+    todayFilePath = current_path + f"/5min_today/{stock_code}_5min_today.csv"
+    masterFilePath = current_path + f"/5min/{stock_code}_5min_data.csv"
+    if not os.path.exists(todayFilePath):
+        print(f"{todayFilePath} does not exist.")
         return False
 
+    # read today's data
+    today_data = pd.read_csv(todayFilePath, dtype={'day': str})
+    # change the header names
+    today_data.rename(columns={
+        'day': 'Date',
+        'open': 'Open',
+        'close': 'Close',
+        'high': 'High',
+        'low': 'Low',
+        'volume': 'Volume'
+    }, inplace=True)
+
+    # formate datatime column. e.g. from 2025-12-23 09:35:00 to 25/12/23 09:35
+    today_data['Date'] = pd.to_datetime(today_data['Date']).dt.strftime('%y/%m/%d %H:%M')
+
+    # combine with master data if exists
+    if os.path.exists(masterFilePath):
+        # master columns=['Date', 'Open', 'High', 'Low', 'Close', 'Volume', 'Amount', 'Trades', 'MA1', 'MA2', 'MA3', 'MA4', 'MA5', 'MA6']
+        master_data = pd.read_csv(masterFilePath, dtype={'Date': str})
+        # concatenate and drop duplicates, only keep columns needed
+        combined_data = pd.concat([master_data, today_data], ignore_index=True)
+        combined_data = combined_data[['Date', 'Open', 'High', 'Low', 'Close', 'Volume']]
+        combined_data.drop_duplicates(subset=['Date'], keep='last', inplace=True)
+    else:
+        combined_data = today_data
+
+    combined_data.to_csv(masterFilePath, index=False, encoding="utf-8-sig")
+
+    # delete today's file after merging
+    os.remove(todayFilePath)
+    
     return True
 
 
-# 主程序入口
-get_all_stock_codes()
-
-# 读取 all_stock_codes.csv 并判断 'download' 列的值是否等于今天日期，如果否则更新为今天日期
-stock_list = pd.read_csv(current_path+"/all_stock_codes.csv", dtype={'code': str})
-
-# 循环 检查并更新 'download' 列
-current_date = su.getCurrentDate()
-for index, row in stock_list.iterrows():
-    if str(row['download']) != current_date:
-        result = get_stock_minute_data(row['code'])
+# Program entry
+# loop through all the stock in folder data/5min_today
+stock_list = os.listdir(current_path + "/5min_today")
+for file_name in stock_list:
+    if file_name.endswith("_5min_today.csv"):
+        stock_code = file_name.split("_")[0]
+        result = merge_today_5min_into_master(stock_code)
         if result:
-            stock_list.at[index, 'download'] = current_date
-            stock_list.to_csv(current_path+"/all_stock_codes.csv", index=False, encoding="utf-8-sig")
-            print(f"{row['code']} download completed")
+            print(f"{stock_code} merged into master file.")
 
-print("All stocks 5mins data download completed.")
+print("All stocks 5mins data merged.")
