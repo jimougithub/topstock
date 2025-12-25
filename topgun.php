@@ -143,7 +143,7 @@ function createStockLink($code) {
         foreach ($dataArrays[$i] as $row) {
             echo "<tr>";
             foreach ($row as $cell) {
-                echo "<td>" . htmlspecialchars($cell) . "</td>";
+                echo "<td>" . ($cell) . "</td>";
             }
             echo "</tr>";
         }
