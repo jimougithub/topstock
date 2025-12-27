@@ -78,7 +78,7 @@ prev_stock_code = ""
 new_stock_code = ""
 for i in range(1, 8000):
     new_stock_code = export_dzh_5minute_data()
-    if new_stock_code == prev_stock_code or (new_stock_code == "600000" and prev_stock_code != ""):
+    if new_stock_code == "600000" and prev_stock_code != "":
         print("all stock extracted")
         break
     else:

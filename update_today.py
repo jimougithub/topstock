@@ -62,8 +62,9 @@ def get_stock_day_data(stock_code):
 # 主程序入口
 get_all_stock_codes()
 
-# 读取 all_stock_codes.csv 并判断 'download' 列的值是否等于今天日期，如果否则更新为今天日期
+# 读取 all_stock_codes.csv 并判断 'download' 列的值是否等于今天日期，如果否则更新为今天日期, 并且安日期排序下载数据
 stock_list = pd.read_csv(current_path+"/all_stock_codes.csv", dtype={'code': str})
+stock_list = stock_list.sort_values(by='download', ascending=True)
 
 # 循环 检查并更新 'download' 列
 current_date = su.getCurrentDate()

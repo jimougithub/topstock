@@ -3,6 +3,7 @@
 import pandas as pd
 import os
 import time
+import datetime
 import akshare as ak
 
 # Epoch timestamp to ISO Date
@@ -74,6 +75,21 @@ def format_sina_stock_code(stock_code):
         return 'bj' + stock_code
     else:
         return 'sz' + stock_code
+
+# get file create date
+def get_file_create_date(file_path):
+    if os.path.exists(file_path):
+        mtime = os.path.getmtime(file_path)
+        file_date = datetime.date.fromtimestamp(mtime)
+        return file_date
+    return None
+
+# check if file is updated today
+def is_file_updated_today(file_path):
+    file_date = get_file_create_date(file_path)
+    if file_date is not None:
+        return file_date == datetime.date.today()
+    return False
 
 '''
 # for testing
