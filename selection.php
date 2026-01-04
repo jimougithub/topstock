@@ -3,8 +3,8 @@
 // Simple UI to run ai/topstock/selection.py and show generated CSVs.
 
 $stock = '';
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $stock = isset($_POST['id']) ? preg_replace('/[^0-9A-Za-z\.]/', '', $_POST['id']) : '';
+if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+    $stock = isset($_GET['id']) ? preg_replace('/[^0-9A-Za-z\.]/', '', $_GET['id']) : '';
     if ($stock !== '') {
         $cmd = 'python3 ./selection.py --id ' . escapeshellarg($stock);
         $outputLines = [];
@@ -47,7 +47,7 @@ function read_csv_rows($file) {
 </head>
 <body>
     <h2>Run Selection</h2>
-    <form method="post">
+    <form method="get">
         Stock code: <input name="id" value="<?php echo htmlspecialchars($stock); ?>"> 
         <button type="submit">Run</button>
     </form>
@@ -85,7 +85,7 @@ function read_csv_rows($file) {
             <p>No rows in file.</p>
         <?php endif; ?>
     <?php endforeach; ?>
-<?php elseif ($_SERVER['REQUEST_METHOD'] === 'POST'): ?>
+<?php elseif ($_SERVER['REQUEST_METHOD'] === 'GET'): ?>
     <p>No CSVs found for <?php echo htmlspecialchars($stock); ?>. Check script output above.</p>
 <?php endif; ?>
 
