@@ -62,6 +62,7 @@ function read_csv_rows($file) {
     // and for each strategy: signal, position, hold_days
     $summary = [];
     $strategies = [];
+    $total_strategies = count($foundFiles);
     foreach ($foundFiles as $file) {
         $bn = basename($file);
         $parts = explode('_', $bn, 2);
@@ -91,6 +92,20 @@ function read_csv_rows($file) {
             $summary[$date][$strategy . '_signal'] = $signal;
             $summary[$date][$strategy . '_position'] = $position;
             $summary[$date][$strategy . '_hold_days'] = $hold;
+
+            // compute numeric position contribution for position summary
+            if (!isset($summary[$date]['position_summary'])) $summary[$date]['position_summary'] = 0;
+            $posNum = 0.0;
+            if ($position !== null && $position !== '') {
+                $clean = str_replace([',','%'], ['', ''], $position);
+                // allow values like "1.23e3" etc; floatval will handle
+                $posNum = floatval($clean);
+            }
+            // special handling for VolatilityControlStrategy
+            if (strtolower($strategy) === strtolower('VolatilityControlStrategy')) {
+                $posNum = $posNum / 2000.0;
+            }
+            $summary[$date]['position_summary'] += $posNum;
         }
     }
     $strategies = array_values(array_unique($strategies));
@@ -108,6 +123,7 @@ function read_csv_rows($file) {
                 <th>Low</th>
                 <th>Volume</th>
                 <th>Amount</th>
+                <th>Position Summary</th>
                 <?php foreach ($strategies as $s): ?>
                     <th><?php echo htmlspecialchars($s); ?> signal</th>
                     <th><?php echo htmlspecialchars($s); ?> position</th>
@@ -124,6 +140,7 @@ function read_csv_rows($file) {
                     <td><?php echo htmlspecialchars(isset($row['low']) ? $row['low'] : ''); ?></td>
                     <td><?php echo htmlspecialchars(isset($row['volume']) ? $row['volume'] : ''); ?></td>
                     <td><?php echo htmlspecialchars(isset($row['amount']) ? $row['amount'] : ''); ?></td>
+                    <td><?php echo htmlspecialchars(isset($row['position_summary']) ? $row['position_summary'] . ' / ' . $total_strategies : ''); ?></td>
                     <?php foreach ($strategies as $s): ?>
                         <td><?php echo htmlspecialchars(isset($row[$s . '_signal']) ? $row[$s . '_signal'] : ''); ?></td>
                         <td><?php echo htmlspecialchars(isset($row[$s . '_position']) ? $row[$s . '_position'] : ''); ?></td>
