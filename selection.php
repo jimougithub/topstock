@@ -105,6 +105,10 @@ function read_csv_rows($file) {
             if (strtolower($strategy) === strtolower('VolatilityControlStrategy')) {
                 $posNum = $posNum / 2000.0;
             }
+            // if $hold = 0, treat as no position
+            if ($hold !== null && is_numeric($hold) && intval($hold) === 0) {
+                $posNum = 0.0;
+            }
             $summary[$date]['position_summary'] += $posNum;
         }
     }
