@@ -109,6 +109,8 @@ function read_csv_rows($file) {
             if ($hold !== null && is_numeric($hold) && intval($hold) === 0) {
                 $posNum = 0.0;
             }
+            // keep one decimal place for each strategy contribution
+            $posNum = round($posNum, 1);
             $summary[$date]['position_summary'] += $posNum;
         }
     }
