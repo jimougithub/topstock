@@ -1,5 +1,4 @@
 <?php
-// selection.php
 // Simple UI to run ai/topstock/selection.py and show generated CSVs.
 
 $stock = '';
@@ -58,6 +57,83 @@ function read_csv_rows($file) {
 <?php endif; ?>
 
 <?php if (isset($foundFiles) && count($foundFiles) > 0): ?>
+    <?php
+    // Build a combined summary table: date, open, high, low, volume, amount,
+    // and for each strategy: signal, position, hold_days
+    $summary = [];
+    $strategies = [];
+    foreach ($foundFiles as $file) {
+        $bn = basename($file);
+        $parts = explode('_', $bn, 2);
+        $strategy = count($parts) === 2 ? preg_replace('/\.csv$/i', '', $parts[1]) : preg_replace('/\.csv$/i', '', $bn);
+        $strategies[] = $strategy;
+        $rows = read_csv_rows($file);
+        if (count($rows) < 2) continue;
+        $header = $rows[0];
+        $map = [];
+        foreach ($header as $i => $h) $map[strtolower(trim($h))] = $i;
+        for ($ri = 1; $ri < count($rows); $ri++) {
+            $r = $rows[$ri];
+            $date = null;
+            if (isset($map['date']) && isset($r[$map['date']])) $date = $r[$map['date']];
+            elseif (isset($r[0])) $date = $r[0];
+            if ($date === null) continue;
+            if (!isset($summary[$date])) $summary[$date] = ['date' => $date];
+            foreach (['open','high','low','volume','amount'] as $c) {
+                if (isset($map[$c]) && isset($r[$map[$c]])) $summary[$date][$c] = $r[$map[$c]];
+            }
+            $signal = null; $position = null; $hold = null;
+            foreach ($map as $k => $idx) {
+                if ($signal === null && strpos($k, 'signal') !== false && isset($r[$idx])) $signal = $r[$idx];
+                if ($position === null && strpos($k, 'position') !== false && isset($r[$idx])) $position = $r[$idx];
+                if ($hold === null && (strpos($k, 'hold') !== false || strpos($k, 'hold_days') !== false) && isset($r[$idx])) $hold = $r[$idx];
+            }
+            $summary[$date][$strategy . '_signal'] = $signal;
+            $summary[$date][$strategy . '_position'] = $position;
+            $summary[$date][$strategy . '_hold_days'] = $hold;
+        }
+    }
+    $strategies = array_values(array_unique($strategies));
+    ksort($summary);
+    $dates = array_reverse(array_keys($summary));
+    ?>
+
+    <h3>Summary Table</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Open</th>
+                <th>High</th>
+                <th>Low</th>
+                <th>Volume</th>
+                <th>Amount</th>
+                <?php foreach ($strategies as $s): ?>
+                    <th><?php echo htmlspecialchars($s); ?> signal</th>
+                    <th><?php echo htmlspecialchars($s); ?> position</th>
+                    <th><?php echo htmlspecialchars($s); ?> hold_days</th>
+                <?php endforeach; ?>
+            </tr>
+        </thead>
+        <tbody>
+            <?php foreach ($dates as $d): $row = $summary[$d]; ?>
+                <tr>
+                    <td><?php echo htmlspecialchars($row['date']); ?></td>
+                    <td><?php echo htmlspecialchars(isset($row['open']) ? $row['open'] : ''); ?></td>
+                    <td><?php echo htmlspecialchars(isset($row['high']) ? $row['high'] : ''); ?></td>
+                    <td><?php echo htmlspecialchars(isset($row['low']) ? $row['low'] : ''); ?></td>
+                    <td><?php echo htmlspecialchars(isset($row['volume']) ? $row['volume'] : ''); ?></td>
+                    <td><?php echo htmlspecialchars(isset($row['amount']) ? $row['amount'] : ''); ?></td>
+                    <?php foreach ($strategies as $s): ?>
+                        <td><?php echo htmlspecialchars(isset($row[$s . '_signal']) ? $row[$s . '_signal'] : ''); ?></td>
+                        <td><?php echo htmlspecialchars(isset($row[$s . '_position']) ? $row[$s . '_position'] : ''); ?></td>
+                        <td><?php echo htmlspecialchars(isset($row[$s . '_hold_days']) ? $row[$s . '_hold_days'] : ''); ?></td>
+                    <?php endforeach; ?>
+                </tr>
+            <?php endforeach; ?>
+        </tbody>
+    </table>
+
     <h3>Generated CSVs</h3>
     <?php foreach ($foundFiles as $file): ?>
         <?php $rows = read_csv_rows($file); ?>
