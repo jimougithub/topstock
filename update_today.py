@@ -68,7 +68,10 @@ stock_list = stock_list.sort_values(by='download', ascending=True)
 
 # 循环 检查并更新 'download' 列
 current_date = su.getCurrentDate()
+total = len(stock_list)
+i = 0
 for index, row in stock_list.iterrows():
+    i += 1
     if str(row['download']) != current_date:
         stock_code = row['code']
         result1 = get_stock_minute_data(stock_code)
@@ -76,6 +79,6 @@ for index, row in stock_list.iterrows():
         if result1 and result2:
             stock_list.at[index, 'download'] = current_date
             stock_list.to_csv(current_path+"/all_stock_codes.csv", index=False, encoding="utf-8-sig")
-            print(f"{row['code']} download completed")
+            print(f"{row['code']} download completed. ({i}/{total})")
 
 print("All stocks 5mins data download completed.")
