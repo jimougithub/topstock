@@ -70,8 +70,8 @@ function read_csv_rows($file) {
     $total_strategies = count($foundFiles);
     foreach ($foundFiles as $file) {
         $bn = basename($file);
-        $parts = explode('_', $bn, 2);
-        $strategy = count($parts) === 2 ? preg_replace('/\.csv$/i', '', $parts[1]) : preg_replace('/\.csv$/i', '', $bn);
+        $parts = explode('_', $bn);
+        $strategy = count($parts) === 3 ? preg_replace('/\.csv$/i', '', $parts[2]) : preg_replace('/\.csv$/i', '', $bn);
         $strategies[] = $strategy;
         $rows = read_csv_rows($file);
         if (count($rows) < 2) continue;
