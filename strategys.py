@@ -686,11 +686,16 @@ class BoxBreakoutStrategy:
         df['signal'] = 0
         df['position'] = 0
         df['hold_days'] = 0
+        df['entry_price'] = 0.0
+        df['entry_date'] = pd.NaT
+        df['stop_loss'] = 0.0
+        df['sell_reason'] = ''
         
         position = 0
         entry_price = 0
         entry_idx = 0
         hold_days = 0
+        stop_loss_price = 0.0
         
         for i in range(1, len(df)):
             # 如果当前没有持仓
@@ -707,6 +712,11 @@ class BoxBreakoutStrategy:
                     entry_idx = i
                     hold_days = 1
                     df.iloc[i, df.columns.get_loc('hold_days')] = hold_days
+                    # record entry info and initial stop loss
+                    df.iloc[i, df.columns.get_loc('entry_price')] = entry_price
+                    df.iloc[i, df.columns.get_loc('entry_date')] = df.index[i]
+                    stop_loss_price = entry_price * (1 - self.stop_loss_pct)
+                    df.iloc[i, df.columns.get_loc('stop_loss')] = stop_loss_price
             
             # 如果当前有持仓
             else:
@@ -716,32 +726,50 @@ class BoxBreakoutStrategy:
                 
                 # 卖出条件检查
                 sell_signal = False
-                
-                # 条件1: 止损
-                stop_loss_price = entry_price * (1 - self.stop_loss_pct)
-                if df['close'].iloc[i] < stop_loss_price:
+                sell_reason = ''
+                current_close = df['close'].iloc[i]
+                current_high = df['high'].iloc[i]
+                current_low = df['low'].iloc[i]
+
+                # 条件1: 止损（使用入场时或上次更新的止损价）
+                if stop_loss_price and current_close < stop_loss_price:
                     sell_signal = True
-                
+                    sell_reason = '止损'
+
                 # 条件2: 持有期结束
                 elif current_hold_days >= self.hold_period:
                     sell_signal = True
-                
+                    sell_reason = '持有期结束'
+
                 # 条件3: 跌破箱体下轨
-                elif df['close'].iloc[i] < df['box_low'].iloc[i]:
+                elif current_close < df['box_low'].iloc[i]:
                     sell_signal = True
-                
+                    sell_reason = '跌破箱体下轨'
+
                 if sell_signal:
                     df.iloc[i, df.columns.get_loc('signal')] = -1
                     df.iloc[i, df.columns.get_loc('position')] = 0
-                    
-                    # 重置持仓状态
+                    # record sell reason and stop loss
+                    df.iloc[i, df.columns.get_loc('sell_reason')] = sell_reason
+                    df.iloc[i, df.columns.get_loc('stop_loss')] = stop_loss_price
+                    # reset持仓状态
                     position = 0
                     entry_price = 0
                     entry_idx = 0
                     hold_days = 0
+                    stop_loss_price = 0.0
                 else:
+                    # 继续持有，更新移动止损（以最高价的止损比例为参考）
+                    trailing_stop = current_high * (1 - self.stop_loss_pct)
+                    stop_loss_price = max(stop_loss_price, trailing_stop) if stop_loss_price else trailing_stop
+                    df.iloc[i, df.columns.get_loc('stop_loss')] = stop_loss_price
                     df.iloc[i, df.columns.get_loc('position')] = 1
         
+        # ensure columns types and fillna
+        df['position'] = df['position'].fillna(0)
+        df['hold_days'] = df['hold_days'].fillna(0)
+        df['sell_reason'] = df['sell_reason'].fillna('')
+
         return df
 
 
