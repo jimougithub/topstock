@@ -157,7 +157,7 @@ function read_csv_rows($file) {
                             $position = isset($row[$s . '_position']) ? $row[$s . '_position'] : '';
                             $is_red = false;
                             if (is_numeric($hold_days) && is_numeric($position)) {
-                                if (intval($hold_days) > 0 && intval($position) > 0) $is_red = true;
+                                if (round($hold_days, 2) > 0 && round($position, 2) > 0) $is_red = true;
                             }
                         ?>
                         <td<?php echo $is_red ? ' bgcolor="#FFA616"' : ''; ?>><?php echo htmlspecialchars(isset($row[$s . '_signal']) ? $row[$s . '_signal'] : ''); ?></td>
