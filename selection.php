@@ -5,7 +5,7 @@ $stock = '';
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $stock = isset($_GET['id']) ? preg_replace('/[^0-9A-Za-z\.]/', '', $_GET['id']) : '';
     if ($stock !== '') {
-        $cmd = 'python3 ./selection.py --id ' . escapeshellarg($stock);
+        $cmd = 'python3 ./selection.py --print N --id ' . escapeshellarg($stock);
         $outputLines = [];
         $returnVar = 0;
         exec($cmd . ' 2>&1', $outputLines, $returnVar);
@@ -42,7 +42,12 @@ function read_csv_rows($file) {
 <head>
     <meta charset="utf-8">
     <title>Selection Runner</title>
-    <style>table{border-collapse:collapse}td,th{border:1px solid #ccc;padding:6px}</style>
+    <style>
+        table{border-collapse:collapse}
+        td,th{border:1px solid #ccc;padding:6px}
+        .toggle-btn{cursor:pointer;background:#f0f0f0;border:1px solid #ccc;padding:2px 6px;border-radius:3px;font-weight:bold}
+        .toggle-btn:focus{outline:2px solid #88f}
+    </style>
 </head>
 <body>
     <h2>Run Selection</h2>
@@ -189,4 +194,35 @@ function read_csv_rows($file) {
 <?php endif; ?>
 
 </body>
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+    const h3s = Array.from(document.querySelectorAll('h3'));
+    h3s.forEach(function(h3){
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'toggle-btn';
+        btn.setAttribute('aria-expanded','false');
+        btn.textContent = '+';
+        if (h3.firstChild) h3.insertBefore(btn, h3.firstChild);
+        else h3.appendChild(btn);
+
+        // gather siblings until next H3
+        let sib = h3.nextElementSibling;
+        const group = [];
+        while(sib && sib.tagName !== 'H3'){
+            group.push(sib);
+            sib = sib.nextElementSibling;
+        }
+        // hide them by default
+        group.forEach(el => el.style.display = 'none');
+
+        btn.addEventListener('click', function(){
+            const expanded = btn.getAttribute('aria-expanded') === 'true';
+            group.forEach(el => el.style.display = expanded ? 'none' : '');
+            btn.setAttribute('aria-expanded', (!expanded).toString());
+            btn.textContent = expanded ? '+' : '−';
+        });
+    });
+});
+</script>
 </html>

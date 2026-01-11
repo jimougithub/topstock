@@ -7,6 +7,7 @@ import stock_utlities as su
 # Parameters
 parser = argparse.ArgumentParser(description='--id 600519')
 parser.add_argument('--id', type=str, default='600519')
+parser.add_argument('--print', type=str, default='Y')
 args = parser.parse_args()
 
 # 数据所在路径
@@ -141,9 +142,10 @@ if __name__ == "__main__":
             # 测试所有策略
             all_strategy_results = test_all_strategies(stock_code)
             for strategy_name, signals in all_strategy_results.items():
-                print(f"Strategy: {strategy_name}, 最后20条记录:\n{signals.tail(20)}")
                 file_path = su.get_current_path() + f"/selection/{stock_code}_{strategy_name}.csv"
-                print(file_path)
+                if args.print.upper() == 'Y':
+                    print(f"Strategy: {strategy_name}, 最后20条记录:\n{signals.tail(20)}")
+                    print(file_path)
                 signals_df = pd.DataFrame(signals.tail(20))
                 signals_df.to_csv(file_path, encoding='utf-8-sig')
     else:
