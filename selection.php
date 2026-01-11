@@ -213,8 +213,14 @@ document.addEventListener('DOMContentLoaded', function(){
             group.push(sib);
             sib = sib.nextElementSibling;
         }
-        // hide them by default
-        group.forEach(el => el.style.display = 'none');
+        // hide them by default (but keep Summary Table expanded)
+        const headingText = h3.textContent.replace(/^\s*[+−]\s*/, '').trim();
+        const isSummary = /summary table/i.test(headingText);
+        group.forEach(el => el.style.display = isSummary ? '' : 'none');
+        if (isSummary) {
+            btn.setAttribute('aria-expanded','true');
+            btn.textContent = '−';
+        }
 
         btn.addEventListener('click', function(){
             const expanded = btn.getAttribute('aria-expanded') === 'true';
