@@ -160,9 +160,9 @@ function read_csv_rows($file) {
                                 if (is_numeric($clean_hold) && intval($clean_hold) > 0) $is_red = true;
                             }
                         ?>
-                        <td<?php echo $is_red ? ' style="color:#FFA616"' : ''; ?>><?php echo htmlspecialchars(isset($row[$s . '_signal']) ? $row[$s . '_signal'] : ''); ?></td>
-                        <td<?php echo $is_red ? ' style="color:#FFA616"' : ''; ?>><?php echo htmlspecialchars(isset($row[$s . '_position']) ? $row[$s . '_position'] : ''); ?></td>
-                        <td<?php echo $is_red ? ' style="color:#FFA616"' : ''; ?>><?php echo htmlspecialchars($hold); ?></td>
+                        <td<?php echo $is_red ? ' bgcolor="#FFA616"' : ''; ?>><?php echo htmlspecialchars(isset($row[$s . '_signal']) ? $row[$s . '_signal'] : ''); ?></td>
+                        <td<?php echo $is_red ? ' bgcolor="#FFA616"' : ''; ?>><?php echo htmlspecialchars(isset($row[$s . '_position']) ? $row[$s . '_position'] : ''); ?></td>
+                        <td<?php echo $is_red ? ' bgcolor="#FFA616"' : ''; ?>><?php echo htmlspecialchars($hold); ?></td>
                     <?php endforeach; ?>
                 </tr>
             <?php endforeach; ?>
