@@ -121,7 +121,6 @@ function read_csv_rows($file) {
     }
     $strategies = array_values(array_unique($strategies));
     ksort($summary);
-    $dates = array_reverse(array_keys($summary));
     ?>
 
     <h3>Summary Table</h3>
@@ -143,7 +142,7 @@ function read_csv_rows($file) {
             </tr>
         </thead>
         <tbody>
-            <?php foreach ($dates as $d): $row = $summary[$d]; ?>
+            <?php foreach ($summary as $row): ?>
                 <tr>
                     <td><?php echo htmlspecialchars($row['date']); ?></td>
                     <td><?php echo htmlspecialchars(isset($row['open']) ? $row['open'] : ''); ?></td>
