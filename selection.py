@@ -141,8 +141,10 @@ if __name__ == "__main__":
         else:
             # 测试所有策略
             all_strategy_results = test_all_strategies(stock_code)
+            i = 0
             for strategy_name, signals in all_strategy_results.items():
-                file_path = su.get_current_path() + f"/selection/{stock_code}_{strategy_name}.csv"
+                i += 1
+                file_path = su.get_current_path() + f"/selection/{stock_code}_{i}_{strategy_name}.csv"
                 if args.print.upper() == 'Y':
                     print(f"Strategy: {strategy_name}, 最后20条记录:\n{signals.tail(20)}")
                     print(file_path)
