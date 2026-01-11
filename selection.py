@@ -81,13 +81,13 @@ def test_strategy(stock_code, strategy_name, strategy_module):
 
 def test_all_strategies(stock_code):
     """
-    20日均线买卖策略                     - MovingAverageStrategy
-    双均线交叉策略                       - DualMovingAverageStrategy
-    均线带策略（布林带原理）              - MovingAverageBandStrategy
-    箱体突破策略模块                     - BoxBreakoutStrategy
-    趋势跟踪策略（均线+ATR动态止损）      - MovingAverageWithATRStrategy
-    均值回归策略                         - MeanReversionStrategy
-    波动率控制策略                       - VolatilityControlStrategy
+    20日均线买卖策略                     - MovingAverageStrategy                正收益比例: 65.82%
+    双均线交叉策略                       - DualMovingAverageStrategy            正收益比例: 64.25%
+    趋势跟踪策略（均线+ATR动态止损）      - MovingAverageWithATRStrategy         正收益比例: 62.29%
+    均线带策略（布林带原理）              - MovingAverageBandStrategy            正收益比例: 61.98%
+    箱体突破策略模块                     - BoxBreakoutStrategy                  正收益比例: 56.36%
+    波动率控制策略                       - VolatilityControlStrategy            正收益比例: 50.93%
+    均值回归策略                         - MeanReversionStrategy                正收益比例: 40.00%
 
     -----------------------------------------------------------------------------------
     策略类型	|优点	               |缺点	              |适用市场
@@ -105,11 +105,11 @@ def test_all_strategies(stock_code):
     strategy_list = [
         ("MovingAverageStrategy", "strategys"),
         ("DualMovingAverageStrategy", "strategys"),
+        ("MovingAverageWithATRStrategy", "strategys"),
         ("MovingAverageBandStrategy", "strategys"),
         ("BoxBreakoutStrategy", "strategys"),
-        ("MovingAverageWithATRStrategy", "strategys"),
-        ("MeanReversionStrategy", "strategys"),
-        ("VolatilityControlStrategy", "strategys")
+        ("VolatilityControlStrategy", "strategys"),
+        ("MeanReversionStrategy", "strategys")
     ]
 
     results = {}
