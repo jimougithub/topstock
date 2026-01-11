@@ -153,16 +153,16 @@ function read_csv_rows($file) {
                     <td><?php echo htmlspecialchars(isset($row['position_summary']) ? $row['position_summary'] . ' / ' . $total_strategies : ''); ?></td>
                     <?php foreach ($strategies as $s): ?>
                         <?php
-                            $hold = isset($row[$s . '_hold_days']) ? $row[$s . '_hold_days'] : '';
+                            $hold_days = isset($row[$s . '_hold_days']) ? $row[$s . '_hold_days'] : '';
+                            $position = isset($row[$s . '_position']) ? $row[$s . '_position'] : '';
                             $is_red = false;
-                            if ($hold !== '') {
-                                $clean_hold = str_replace([',','%'], ['', ''], $hold);
-                                if (is_numeric($clean_hold) && intval($clean_hold) > 0) $is_red = true;
+                            if (is_numeric($hold_days) && is_numeric($position)) {
+                                if (intval($hold_days) > 0 && intval($position) > 0) $is_red = true;
                             }
                         ?>
                         <td<?php echo $is_red ? ' bgcolor="#FFA616"' : ''; ?>><?php echo htmlspecialchars(isset($row[$s . '_signal']) ? $row[$s . '_signal'] : ''); ?></td>
-                        <td<?php echo $is_red ? ' bgcolor="#FFA616"' : ''; ?>><?php echo htmlspecialchars(isset($row[$s . '_position']) ? $row[$s . '_position'] : ''); ?></td>
-                        <td<?php echo $is_red ? ' bgcolor="#FFA616"' : ''; ?>><?php echo htmlspecialchars($hold); ?></td>
+                        <td<?php echo $is_red ? ' bgcolor="#FFA616"' : ''; ?>><?php echo htmlspecialchars($position); ?></td>
+                        <td<?php echo $is_red ? ' bgcolor="#FFA616"' : ''; ?>><?php echo htmlspecialchars($hold_days); ?></td>
                     <?php endforeach; ?>
                 </tr>
             <?php endforeach; ?>
