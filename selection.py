@@ -62,7 +62,7 @@ def load_single_stock(stock_code):
             print(f"加载文件 {file_path} 失败: {e}")
             return None
 
-def test_strategy(stock_code, strategy_name, strategy_module):
+def test_strategy(data, strategy_name, strategy_module):
     # 动态从指定模块导入策略类
     try:
         strategy_module_obj = importlib.import_module(strategy_module)
@@ -79,7 +79,7 @@ def test_strategy(stock_code, strategy_name, strategy_module):
     return signals
 
 
-def test_all_strategies(stock_code):
+def test_all_strategies(stock_code, data):
     """
     20日均线买卖策略                     - MovingAverageStrategy                正收益比例: 65.82%
     双均线交叉策略                       - DualMovingAverageStrategy            正收益比例: 64.25%
@@ -115,7 +115,7 @@ def test_all_strategies(stock_code):
     results = {}
     for strategy_name, strategy_module in strategy_list:
         print(f"Testing strategy: {strategy_name} for stock: {stock_code}")
-        signals = test_strategy(stock_code, strategy_name, strategy_module)
+        signals = test_strategy(data, strategy_name, strategy_module)
         if signals is not None:
             results[strategy_name] = signals
             print(f"Strategy {strategy_name} generated {len(signals)} signals.")
@@ -140,7 +140,7 @@ if __name__ == "__main__":
             print(f"Failed to load {stock_code} data")
         else:
             # 测试所有策略
-            all_strategy_results = test_all_strategies(stock_code)
+            all_strategy_results = test_all_strategies(stock_code, data)
             i = 0
             for strategy_name, signals in all_strategy_results.items():
                 i += 1

@@ -2160,8 +2160,8 @@ class VolatilityControlStrategy:
         """
         df = self.calculate_indicators(data)
         
-        # 初始化信号列
-        df['signal'] = 0
+        # 初始化信号列（使用 float 避免将来赋值 -0.5 引发 dtype 不兼容警告）
+        df['signal'] = 0.0
         df['position'] = 0  # 持仓股数
         df['target_position'] = 0  # 目标持仓股数
         df['entry_price'] = 0.0
